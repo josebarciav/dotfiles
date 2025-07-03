@@ -1,0 +1,34 @@
+{
+  "connections": {
+    "getlife TEST": {
+      "url": "mysql://usuario:<contrase\u00f1a>@127.0.0.1:3700/getlife"
+    },
+    "getlife LOCAL": {
+      "url": "mysql://usuario:<contrase\u00f1a>@localhost:3500/getlife"
+    },
+    "getlife PRD": {
+      "url": "mysql://usuario:<contrase\u00f1a>@127.0.0.1:3800/getlife"
+    },
+    "life5es": {
+      "url": "postgres://usuario:<contrase\u00f1a>@localhost:3910/life5es"
+    },
+    "life5fr": {
+      "url": "postgres://usuario:<contrase\u00f1a>@localhost:3910/life5fr"
+    },
+    "life5it": {
+      "url": "postgres://usuario:<contrase\u00f1a>@localhost:3910/life5it"
+    },
+    "life5axawles": {
+      "url": "postgres://usuario:<contrase\u00f1a>@localhost:3910/life5axawles"
+    },
+    "whatsapp_dashboard": {
+      "url": "postgres://usuario:<contrase\u00f1a>@35.205.154.140:5432/whatsapp_dashboard"
+    },
+    "fixitquick Local": {
+      "url": "postgres://usuario:<contrase\u00f1a>@localhost:5432/fixitquick"
+    },
+    "fixitquick PRD": {
+      "url": "postgres://usuario:<contrase\u00f1a>@13.48.178.87:5432/fixitquick"
+    }
+  }
+}
