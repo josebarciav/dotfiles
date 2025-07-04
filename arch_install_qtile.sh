@@ -57,7 +57,13 @@ pacstrap /mnt \
 echo "Generando fstab..."
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# 7. Configuración dentro de chroot
+# 6.5. Establecer contraseñas de root y usuario en el sistema montado
+echo "Estableciendo contraseñas en /mnt..."
+printf "root:${ROOT_PASS}
+${USERNAME}:${USER_PASS}
+" | chpasswd --root /mnt
+
+# 7. Configuración dentro de chroot Configuración dentro de chroot
 arch-chroot /mnt /bin/bash <<EOF
   set -e
 
