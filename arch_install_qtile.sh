@@ -27,7 +27,21 @@ mount "${DISK}p2" /mnt
 mkdir -p /mnt/efi
 mount "${DISK}p1" /mnt/efi
 
+# 4.5. Habilitar multilib para paquetes 32-bit (lib32-nvidia-utils)
+# Descomentamos el repositorio multilib en pacman.conf del entorno live
+echo "Habilitando multilib en /etc/pacman.conf..."
+sed -i '/#\[multilib\]/s/^#//' /etc/pacman.conf
+sed -i '/#Include = \/etc\/pacman.d\/mirrorlist/s/^#//' /etc/pacman.conf
+
 # 5. Instalación base
+echo "Instalando sistema base..."
+pacstrap /mnt \
+    base linux linux-firmware intel-ucode \
+    grub efibootmgr dosfstools os-prober mtools \
+    networkmanager vim sudo xorg-server xorg-xinit xorg-apps \
+    nvidia nvidia-utils lib32-nvidia-utils nvidia-settings \
+    qtile python-cairocffi alacritty feh rofi polkit-gnome \
+    ttf-dejavu ttf-liberation noto-fonts
 echo "Instalando sistema base..."
 pacstrap /mnt \
     base linux linux-firmware intel-ucode \
