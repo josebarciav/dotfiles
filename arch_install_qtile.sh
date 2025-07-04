@@ -17,12 +17,13 @@ sgdisk --zap-all "$DISK"
 sgdisk -n1:0:+$EFI_SIZE -t1:ef00 -c1:"EFI System" "$DISK"
 sgdisk -n2:0:0      -t2:8300 -c2:"Linux Root"  "$DISK"
 
-# 3. Formateo de particiones
-echo "Desmontando posibles montajes previos..."
+# 3. Desmontar y formatear particiones
+echo "Desmontando posibles montajes..."
+umount -R /mnt 2>/dev/null || true
 umount "${DISK}p1" 2>/dev/null || true
-numount "${DISK}p2" 2>/dev/null || true
+umount "${DISK}p2" 2>/dev/null || true
 
-echo "Formateando EFI y raíz..."
+echo "Formateando particiones..."
 mkfs.fat -F32 "${DISK}p1"
 mkfs.ext4 "${DISK}p2"
 
