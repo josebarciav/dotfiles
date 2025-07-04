@@ -18,6 +18,10 @@ sgdisk -n1:0:+$EFI_SIZE -t1:ef00 -c1:"EFI System" "$DISK"
 sgdisk -n2:0:0      -t2:8300 -c2:"Linux Root"  "$DISK"
 
 # 3. Formateo de particiones
+echo "Desmontando posibles montajes previos..."
+umount "${DISK}p1" 2>/dev/null || true
+numount "${DISK}p2" 2>/dev/null || true
+
 echo "Formateando EFI y raíz..."
 mkfs.fat -F32 "${DISK}p1"
 mkfs.ext4 "${DISK}p2"
@@ -28,20 +32,11 @@ mkdir -p /mnt/efi
 mount "${DISK}p1" /mnt/efi
 
 # 4.5. Habilitar multilib para paquetes 32-bit (lib32-nvidia-utils)
-# Descomentamos el repositorio multilib en pacman.conf del entorno live
 echo "Habilitando multilib en /etc/pacman.conf..."
 sed -i '/#\[multilib\]/s/^#//' /etc/pacman.conf
 sed -i '/#Include = \/etc\/pacman.d\/mirrorlist/s/^#//' /etc/pacman.conf
 
 # 5. Instalación base
-echo "Instalando sistema base..."
-pacstrap /mnt \
-    base linux linux-firmware intel-ucode \
-    grub efibootmgr dosfstools os-prober mtools \
-    networkmanager vim sudo xorg-server xorg-xinit xorg-apps \
-    nvidia nvidia-utils lib32-nvidia-utils nvidia-settings \
-    qtile python-cairocffi alacritty feh rofi polkit-gnome \
-    ttf-dejavu ttf-liberation noto-fonts
 echo "Instalando sistema base..."
 pacstrap /mnt \
     base linux linux-firmware intel-ucode \
@@ -58,6 +53,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 # 7. Configuración dentro de chroot
 arch-chroot /mnt /bin/bash <<EOF
   set -e
+
   # Zona horaria
   ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
   hwclock --systohc
