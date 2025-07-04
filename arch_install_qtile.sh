@@ -46,8 +46,7 @@ pacstrap /mnt \
     nvidia nvidia-utils lib32-nvidia-utils nvidia-settings \
     qtile python-cairocffi alacritty feh rofi polkit-gnome \
     ttf-dejavu ttf-liberation noto-fonts \
-    alsa-utils pulseaudio pulseaudio-alsa pavucontrol \
-    pipewire pipewire-pulse pipewire-alsa wireplumber
+    alsa-utils pipewire pipewire-pulse pipewire-alsa wireplumber pavucontrol
 
 # 6. Generar fstab
 echo "Generando fstab..."
@@ -92,8 +91,13 @@ echo -e "127.0.1.1\t$HOSTNAME.localdomain\t$HOSTNAME" >> /etc/hosts
   grub-mkconfig -o /boot/grub/grub.cfg
 
   # Servicios
+  # Red
   systemctl enable NetworkManager
-  # Optional: systemctl enable bluetooth
+  # Audio (PipeWire)
+  systemctl enable --global pipewire pipewire-pulse wireplumber
+  # Bluetooth (opcional, descomenta si lo usas)
+  pacman -S bluez bluez-utils
+  systemctl enable bluetooth
 EOF
 
 # 8. Desmontar y reiniciar
