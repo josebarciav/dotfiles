@@ -54,14 +54,15 @@ pacstrap /mnt \
 echo "Generando fstab..."
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# 6.5. Establecer contraseñas (interactivo fuera de heredoc)
-echo "Estableciendo contraseña de root (dentro de chroot)..."
-arch-chroot /mnt passwd root
+# 6.5. Establecer contraseñas interactivamente
+# Usamos chroot en lugar de arch-chroot para tener un tty
+echo "Estableciendo contraseña de root (interactivo)..."
+chroot /mnt /usr/bin/passwd root
 
-echo "Estableciendo contraseña de $USERNAME (dentro de chroot)..."
-arch-chroot /mnt passwd $USERNAME
+echo "Estableciendo contraseña de $USERNAME (interactivo)..."
+chroot /mnt /usr/bin/passwd $USERNAME
 
-# 7. Configuración dentro de chroot (no interactivo)
+# 7. Configuración dentro de chroot (no interactivo). Configuración dentro de chroot (no interactivo)
 echo "Configurando sistema dentro de chroot..."
 arch-chroot /mnt /bin/bash <<EOF
 set -e
