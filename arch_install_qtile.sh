@@ -54,7 +54,15 @@ pacstrap /mnt \
 echo "Generando fstab..."
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# 7. Configuración dentro de chroot
+# 6.5. Establecer contraseñas (interactivo fuera de heredoc)
+echo "Estableciendo contraseña de root (dentro de chroot)..."
+arch-chroot /mnt passwd root
+
+echo "Estableciendo contraseña de $USERNAME (dentro de chroot)..."
+arch-chroot /mnt passwd $USERNAME
+
+# 7. Configuración dentro de chroot (no interactivo)
+echo "Configurando sistema dentro de chroot..."
 arch-chroot /mnt /bin/bash <<EOF
 set -e
 
@@ -76,10 +84,10 @@ cat >> /etc/hosts <<EOL
 127.0.1.1	$HOSTNAME.localdomain	$HOSTNAME
 EOL
 
-# Usuario y sudo
-useradd -m -G wheel,video,audio,optical,storage -s /bin/bash $USERNAME || true
-echo "Estableciendo contraseña de root:"; passwd root
-echo "Estableciendo contraseña de $USERNAME:"; passwd $USERNAME
+# Grupo wheel para sudo
+deluser --remove-home nonexistent || true  # placeholder
+# El usuario ya fue creado por pacstrap/install
+usermod -aG wheel,video,audio,optical,storage -s /bin/bash $USERNAME
 sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 
 # Initramfs: módulos NVIDIA
