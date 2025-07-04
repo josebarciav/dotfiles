@@ -63,7 +63,7 @@ printf "root:${ROOT_PASS}
 ${USERNAME}:${USER_PASS}
 " | chpasswd --root /mnt
 
-# 7. Configuración dentro de chroot Configuración dentro de chroot
+# 7. Configuración dentro de chroot
 arch-chroot /mnt /bin/bash <<EOF
   set -e
 
@@ -78,22 +78,18 @@ arch-chroot /mnt /bin/bash <<EOF
   echo "LANG=es_ES.UTF-8" > /etc/locale.conf
 
   # Hostname y hosts
-echo "$HOSTNAME" > /etc/hostname
+  echo "$HOSTNAME" > /etc/hostname
   cat >> /etc/hosts <<EOL
 127.0.0.1	localhost
 ::1	localhost
 127.0.1.1	$HOSTNAME.localdomain	$HOSTNAME
 EOL
 
-  # Establecer contraseñas
-  echo "root:${ROOT_PASS}" | chpasswd
-  echo "${USERNAME}:${USER_PASS}" | chpasswd
-
   # Usuario y sudo
   usermod -aG wheel,video,audio,optical,storage -s /bin/bash $USERNAME
   sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 
-  # Initramfs: módulos NVIDIA
+  # Initramfs: módulos NVIDIA: módulos NVIDIA
   sed -i 's/^MODULES=.*/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf
   mkinitcpio -P
 
