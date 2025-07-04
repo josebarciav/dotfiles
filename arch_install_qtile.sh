@@ -54,9 +54,19 @@ pacstrap /mnt \
 echo "Generando fstab..."
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# 6.5. Establecer contraseñas interactivamente
-# Usamos chroot en lugar de arch-chroot para tener un tty
+# 6.5. Crear usuario y establecer contraseñas interactivamente
+# Primero crea el usuario dentro del sistema montado
+echo "Creando usuario $USERNAME en chroot..."
+chroot /mnt /usr/bin/useradd -m -G wheel,video,audio,optical,storage -s /bin/bash $USERNAME || true
+
+# Luego establecemos las contraseñas
 echo "Estableciendo contraseña de root (interactivo)..."
+chroot /mnt /usr/bin/passwd root
+
+echo "Estableciendo contraseña de $USERNAME (interactivo)..."
+chroot /mnt /usr/bin/passwd $USERNAME
+
+# 7. Configuración dentro de chroot (no interactivo) (interactivo)..."
 chroot /mnt /usr/bin/passwd root
 
 echo "Estableciendo contraseña de $USERNAME (interactivo)..."
