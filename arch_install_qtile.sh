@@ -6,6 +6,10 @@ EFI_SIZE="512MiB"          # Tamaño de la partición EFI
 HOSTNAME="nitro-v15"       # Nombre del equipo
 USERNAME="jose"       # Nombre de tu usuario
 
+# Pedir contraseñas antes de empezar
+read -rp "Contraseña para root: " -s ROOT_PASS; echo
+read -rp "Contraseña para $USERNAME: " -s USER_PASS; echo
+
 set -euo pipefail
 export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
 
@@ -28,12 +32,13 @@ mkfs.fat -F32 "${DISK}p1"
 mkfs.ext4 "${DISK}p2"
 
 # 4. Montaje de sistemas de archivos
+echo "Montando particiones..."
 mount "${DISK}p2" /mnt
 mkdir -p /mnt/efi
 mount "${DISK}p1" /mnt/efi
 
-# 4.5. Habilitar multilib para paquetes 32-bit (lib32-nvidia-utils)
-echo "Habilitando multilib en /etc/pacman.conf..."
+# 4.5. Habilitar multilib para paquetes 32-bit
+echo "Habilitando multilib en /etc/pacman.conf (live)..."
 sed -i '/#\[multilib\]/s/^#//' /etc/pacman.conf
 sed -i '/#Include = \/etc\/pacman.d\/mirrorlist/s/^#//' /etc/pacman.conf
 
@@ -49,8 +54,6 @@ pacstrap /mnt \
     alsa-utils pipewire pipewire-pulse pipewire-alsa wireplumber pavucontrol
 
 # 6. Generar fstab
-echo "Generando fstab..."
-genfstab -U /mnt >> /mnt/etc/fstab Generar fstab
 echo "Generando fstab..."
 genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -70,19 +73,21 @@ arch-chroot /mnt /bin/bash <<EOF
 
   # Hostname y hosts
 echo "$HOSTNAME" > /etc/hostname
-echo -e "127.0.0.1	localhost" >> /etc/hosts
-echo -e "::1	localhost" >> /etc/hosts
-echo -e "127.0.1.1	$HOSTNAME.localdomain	$HOSTNAME" >> /etc/hosts
+  cat >> /etc/hosts <<EOL
+127.0.0.1	localhost
+::1	localhost
+127.0.1.1	$HOSTNAME.localdomain	$HOSTNAME
+EOL
 
-  # Establecer contraseñas sin interacción
-  echo "root:$ROOT_PASS" | chpasswd
-  echo "$USERNAME:$USER_PASS" | chpasswd
+  # Establecer contraseñas
+  echo "root:${ROOT_PASS}" | chpasswd
+  echo "${USERNAME}:${USER_PASS}" | chpasswd
 
   # Usuario y sudo
   usermod -aG wheel,video,audio,optical,storage -s /bin/bash $USERNAME
   sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 
-  # Initramfs (DRM y módulos NVIDIA)
+  # Initramfs: módulos NVIDIA
   sed -i 's/^MODULES=.*/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf
   mkinitcpio -P
 
@@ -91,55 +96,10 @@ echo -e "127.0.1.1	$HOSTNAME.localdomain	$HOSTNAME" >> /etc/hosts
   grub-mkconfig -o /boot/grub/grub.cfg
 
   # Servicios
-  # Red
   systemctl enable NetworkManager
-  # Audio (PipeWire)
   systemctl enable --global pipewire pipewire-pulse wireplumber
-  # Bluetooth (opcional, descomenta si lo usas)
-  pacman -Sy --noconfirm bluez bluez-utils
-  systemctl enable bluetooth
-EOF
-  set -e
-
-  # Zona horaria
-  ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
-  hwclock --systohc
-
-  # Locales
-  sed -i 's/^#es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/' /etc/locale.gen
-  sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
-  locale-gen
-  echo "LANG=es_ES.UTF-8" > /etc/locale.conf
-
-  # Hostname y hosts
-echo "$HOSTNAME" > /etc/hostname
-echo -e "127.0.0.1\tlocalhost" >> /etc/hosts
-echo -e "::1\tlocalhost" >> /etc/hosts
-echo -e "127.0.1.1\t$HOSTNAME.localdomain\t$HOSTNAME" >> /etc/hosts
-
-  # Contraseña de root
-  echo "Establece la contraseña de root:"; passwd root
-
-  # Usuario y sudo
-  useradd -m -G wheel,video,audio,optical,storage -s /bin/bash $USERNAME
-  echo "Establece la contraseña para $USERNAME:"; passwd $USERNAME
-  sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
-
-  # Initramfs (DRM y módulos NVIDIA)
-  sed -i 's/^MODULES=.*/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf
-  mkinitcpio -P
-
-  # GRUB en UEFI
-  grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
-  grub-mkconfig -o /boot/grub/grub.cfg
-
-  # Servicios
-  # Red
-  systemctl enable NetworkManager
-  # Audio (PipeWire)
-  systemctl enable --global pipewire pipewire-pulse wireplumber
-  # Bluetooth (opcional, descomenta si lo usas)
-  pacman -S bluez bluez-utils
+  # Bluetooth opcional
+  pacman -S --noconfirm bluez bluez-utils
   systemctl enable bluetooth
 EOF
 
