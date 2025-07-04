@@ -4,11 +4,7 @@
 DISK="/dev/nvme0n1"       # Disco principal (ajusta si es necesario)
 EFI_SIZE="512MiB"          # Tamaño de la partición EFI
 HOSTNAME="nitro-v15"       # Nombre del equipo
-USERNAME="jose"       # Nombre de tu usuario
-
-# Pedir contraseñas antes de empezar
-read -rp "Contraseña para root: " -s ROOT_PASS; echo
-read -rp "Contraseña para $USERNAME: " -s USER_PASS; echo
+USERNAME="jose"            # Nombre de tu usuario
 
 set -euo pipefail
 export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
@@ -51,58 +47,53 @@ pacstrap /mnt \
     nvidia nvidia-utils lib32-nvidia-utils nvidia-settings \
     qtile python-cairocffi alacritty feh rofi polkit-gnome \
     ttf-dejavu ttf-liberation noto-fonts \
-    alsa-utils pipewire pipewire-pulse pipewire-alsa wireplumber pavucontrol
+    alsa-utils pipewire pipewire-pulse pipewire-alsa wireplumber pavucontrol \
+    bluez bluez-utils
 
 # 6. Generar fstab
 echo "Generando fstab..."
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# 6.5. Establecer contraseñas de root y usuario en el sistema montado
-echo "Estableciendo contraseñas en /mnt..."
-printf "root:${ROOT_PASS}
-${USERNAME}:${USER_PASS}
-" | chpasswd --root /mnt
-
 # 7. Configuración dentro de chroot
 arch-chroot /mnt /bin/bash <<EOF
-  set -e
+set -e
 
-  # Zona horaria
-  ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
-  hwclock --systohc
+# Zona horaria
+ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
+hwclock --systohc
 
-  # Locales
-  sed -i 's/^#es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/' /etc/locale.gen
-  sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
-  locale-gen
-  echo "LANG=es_ES.UTF-8" > /etc/locale.conf
+# Locales
+sed -i 's/^#es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/' /etc/locale.gen
+sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+locale-gen
+echo "LANG=es_ES.UTF-8" > /etc/locale.conf
 
-  # Hostname y hosts
-  echo "$HOSTNAME" > /etc/hostname
-  cat >> /etc/hosts <<EOL
+# Hostname y hosts
+echo "$HOSTNAME" > /etc/hostname
+cat >> /etc/hosts <<EOL
 127.0.0.1	localhost
 ::1	localhost
 127.0.1.1	$HOSTNAME.localdomain	$HOSTNAME
 EOL
 
-  # Usuario y sudo
-  usermod -aG wheel,video,audio,optical,storage -s /bin/bash $USERNAME
-  sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+# Usuario y sudo
+useradd -m -G wheel,video,audio,optical,storage -s /bin/bash $USERNAME || true
+echo "Estableciendo contraseña de root:"; passwd root
+echo "Estableciendo contraseña de $USERNAME:"; passwd $USERNAME
+sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 
-  # Initramfs: módulos NVIDIA: módulos NVIDIA
-  sed -i 's/^MODULES=.*/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf
-  mkinitcpio -P
+# Initramfs: módulos NVIDIA
+sed -i 's/^MODULES=.*/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf
+mkinitcpio -P
 
-  # GRUB en UEFI
-  grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
-  grub-mkconfig -o /boot/grub/grub.cfg
+# GRUB en UEFI
+grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
 
-  # Servicios
-  systemctl enable NetworkManager
-  systemctl enable --global pipewire pipewire-pulse wireplumber
-  # Bluetooth opcional
-  pacman -S --noconfirm bluez bluez-utils
-  systemctl enable bluetooth
+# Servicios
+systemctl enable NetworkManager
+systemctl enable --global pipewire pipewire-pulse wireplumber
+systemctl enable bluetooth
 EOF
 
 # 8. Desmontar y reiniciar
