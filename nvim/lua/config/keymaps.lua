@@ -65,5 +65,7 @@ map("n", "<leader>q", ":q<CR>", opts)                     -- <Space>q: Cerrar ar
 -- 🧪 Misceláneo
 map("n", "<leader>so", ":source %<CR>", opts)             -- <Space>so: Recargar archivo actual
 map("n", "<leader>ch", ":checkhealth<CR>", opts)          -- <Space>ch: Revisar salud de Neovim
+-- Git
+vim.keymap.set("n", "<leader>gg", ":LazyGit<CR>", { noremap = true, silent = true, desc = "Abrir LazyGit" })
 
 

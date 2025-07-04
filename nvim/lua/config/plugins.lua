@@ -12,6 +12,18 @@ require("lazy").setup({
   -- Explorador de archivos
   { "nvim-tree/nvim-tree.lua" },
 
+  -- Git
+  {
+  "kdheepak/lazygit.nvim",
+  cmd = "LazyGit",
+  dependencies = {
+    "nvim-lua/plenary.nvim"
+  },
+  keys = {
+    { "<leader>gg", "<cmd>LazyGit<cr>", desc = "Abrir LazyGit" }
+  }
+},
+
   -- Fuzzy Finder
   { "nvim-telescope/telescope.nvim", tag = "0.1.3" },
 
@@ -29,6 +41,45 @@ require("lazy").setup({
   { "L3MON4D3/LuaSnip" },
   { "saadparwaiz1/cmp_luasnip" },
   { "rafamadriz/friendly-snippets" },
+
+  -- THEMES
+  -- 🌿 Everforest
+{
+  "sainnhe/everforest",
+  lazy = false,
+  priority = 1000,
+  config = function()
+    vim.g.everforest_background = "soft"  -- soft | medium | hard
+    vim.g.everforest_enable_italic = 1
+    vim.cmd("colorscheme everforest")
+  end,
+},
+
+-- 🟤 Gruvbox
+{
+  "morhetz/gruvbox",
+  lazy = true,
+},
+
+-- 🌸 Rosé Pine (modo dawn para sepia claro)
+{
+  "rose-pine/neovim",
+  name = "rose-pine",
+  lazy = true,
+},
+
+-- 🟤 Oxocarbon
+{
+  "nyoom-engineering/oxocarbon.nvim",
+  lazy = true,
+},
+
+-- 🔥 Edge (modo warm)
+{
+  "sainnhe/edge",
+  lazy = true,
+},
+
 
   -- Cliente SQL tipo DBeaver
   {

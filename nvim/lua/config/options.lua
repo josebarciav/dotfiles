@@ -5,4 +5,4 @@ vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 vim.opt.termguicolors = true
 vim.opt.clipboard = "unnamedplus"
-vim.cmd.colorscheme("catppuccin")
+vim.cmd.colorscheme("everforest")
