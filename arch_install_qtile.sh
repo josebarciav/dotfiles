@@ -70,6 +70,49 @@ arch-chroot /mnt /bin/bash <<EOF
 
   # Hostname y hosts
 echo "$HOSTNAME" > /etc/hostname
+echo -e "127.0.0.1	localhost" >> /etc/hosts
+echo -e "::1	localhost" >> /etc/hosts
+echo -e "127.0.1.1	$HOSTNAME.localdomain	$HOSTNAME" >> /etc/hosts
+
+  # Establecer contraseñas sin interacción
+  echo "root:$ROOT_PASS" | chpasswd
+  echo "$USERNAME:$USER_PASS" | chpasswd
+
+  # Usuario y sudo
+  usermod -aG wheel,video,audio,optical,storage -s /bin/bash $USERNAME
+  sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+
+  # Initramfs (DRM y módulos NVIDIA)
+  sed -i 's/^MODULES=.*/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf
+  mkinitcpio -P
+
+  # GRUB en UEFI
+  grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
+  grub-mkconfig -o /boot/grub/grub.cfg
+
+  # Servicios
+  # Red
+  systemctl enable NetworkManager
+  # Audio (PipeWire)
+  systemctl enable --global pipewire pipewire-pulse wireplumber
+  # Bluetooth (opcional, descomenta si lo usas)
+  pacman -Sy --noconfirm bluez bluez-utils
+  systemctl enable bluetooth
+EOF
+  set -e
+
+  # Zona horaria
+  ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
+  hwclock --systohc
+
+  # Locales
+  sed -i 's/^#es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/' /etc/locale.gen
+  sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+  locale-gen
+  echo "LANG=es_ES.UTF-8" > /etc/locale.conf
+
+  # Hostname y hosts
+echo "$HOSTNAME" > /etc/hostname
 echo -e "127.0.0.1\tlocalhost" >> /etc/hosts
 echo -e "::1\tlocalhost" >> /etc/hosts
 echo -e "127.0.1.1\t$HOSTNAME.localdomain\t$HOSTNAME" >> /etc/hosts
