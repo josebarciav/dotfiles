@@ -1,3 +1,5 @@
+vim.opt.mouse = "a"
+vim.opt.mousemodel = "extend"
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.tabstop = 2

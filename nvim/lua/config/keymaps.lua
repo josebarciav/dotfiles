@@ -3,7 +3,8 @@ local map = vim.keymap.set
 local opts = { noremap = true, silent = true }
 
 -- 🗂️ Archivos y navegación
-map("n", "<leader>e", ":NvimTreeToggle<CR>", opts)       -- <Space>e: Alternar el árbol de archivos
+map("n", "<leader>e", ":NvimTreeToggle<CR>", opts)-- <Space>e: Alternar el árbol de archivos
+map("n", "<leader>fe", ":NvimTreeFocus<CR>", {desc = "Ir al panel de archivos"})
 map("n", "<leader>pv", vim.cmd.Ex, opts)                 -- <Space>pv: Abrir vista de archivos con :Ex
 
 -- 🔍 Telescope (búsquedas)

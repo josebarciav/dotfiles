@@ -3,6 +3,7 @@
 | Combinación | Acción |
 |-------------|--------|
 | `<leader>e` | Alternar árbol de archivos (NvimTree) |
+| `<leader>en` | Focus árbol de archivos (NvimTree) |
 | `<leader>pv` | Abrir vista de archivos (:Ex) |
 | `<leader>ff` | Buscar archivos (Telescope) |
 | `<leader>fg` | Buscar texto (live grep) |
