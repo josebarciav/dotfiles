@@ -45,9 +45,13 @@ pacstrap /mnt \
     networkmanager vim sudo xorg-server xorg-xinit xorg-apps \
     nvidia nvidia-utils lib32-nvidia-utils nvidia-settings \
     qtile python-cairocffi alacritty feh rofi polkit-gnome \
-    ttf-dejavu ttf-liberation noto-fonts
+    ttf-dejavu ttf-liberation noto-fonts \
+    alsa-utils pulseaudio pulseaudio-alsa pavucontrol \
+    pipewire pipewire-pulse pipewire-alsa wireplumber
 
 # 6. Generar fstab
+echo "Generando fstab..."
+genfstab -U /mnt >> /mnt/etc/fstab Generar fstab
 echo "Generando fstab..."
 genfstab -U /mnt >> /mnt/etc/fstab
 
