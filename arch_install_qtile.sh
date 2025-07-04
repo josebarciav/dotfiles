@@ -4,7 +4,7 @@
 DISK="/dev/nvme0n1"       # Disco principal (ajusta si es necesario)
 EFI_SIZE="512MiB"          # Tamaño de la partición EFI
 HOSTNAME="nitro-v15"       # Nombre del equipo
-USERNAME="tuusuario"       # Nombre de tu usuario
+USERNAME="jose"       # Nombre de tu usuario
 
 set -euo pipefail
 export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
