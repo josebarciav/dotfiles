@@ -1,0 +1,10 @@
+libqtile
+os
+settings.groups
+settings.keys
+settings.layouts
+settings.mouse
+settings.path
+settings.screens
+settings.widgets
+subprocess
