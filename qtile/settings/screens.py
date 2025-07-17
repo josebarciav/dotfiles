@@ -1,38 +1,34 @@
-# Antonio Sarosi
-# https://youtube.com/c/antoniosarosi
-# https://github.com/antoniosarosi/dotfiles
-
-# Multimonitor support
 
 from libqtile.config import Screen
 from libqtile import bar
-from libqtile.log_utils import logger
 from .widgets import primary_widgets, secondary_widgets
-import subprocess
-
+from .theme import colors
 
 def status_bar(widgets):
-    return bar.Bar(widgets, 24, opacity=0.92)
+    return bar.Bar(
+        widgets,
+        26,
+        opacity=1.0,
+        background=colors['background'],  # fondo uniforme
+    )
 
+import subprocess
 
-screens = [Screen(top=status_bar(primary_widgets))]
+def count_monitors():
+    try:
+        output = subprocess.check_output("xrandr --query | grep ' connected'", shell=True)
+        return len(output.decode().splitlines())
+    except Exception:
+        return 1
 
-xrandr = "xrandr | grep -w 'connected' | cut -d ' ' -f 2 | wc -l"
+monitors = count_monitors()
 
-command = subprocess.run(
-    xrandr,
-    shell=True,
-    stdout=subprocess.PIPE,
-    stderr=subprocess.PIPE,
-)
-
-if command.returncode != 0:
-    error = command.stderr.decode("UTF-8")
-    logger.error(f"Failed counting monitors using {xrandr}:\n{error}")
-    connected_monitors = 1
+if monitors >= 2:
+    screens = [
+        Screen(top=status_bar(secondary_widgets)),
+        Screen(top=status_bar(primary_widgets))
+    ]
 else:
-    connected_monitors = int(command.stdout.decode("UTF-8"))
-
-if connected_monitors > 1:
-    for _ in range(1, connected_monitors):
-        screens.append(Screen(top=status_bar(secondary_widgets)))
+    screens = [
+        Screen(top=status_bar(primary_widgets))
+    ]

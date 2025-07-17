@@ -1,11 +1,3 @@
-# Qtile Config File
-# http://www.qtile.org/
-
-# Antonio Sarosi
-# https://youtube.com/c/antoniosarosi
-# https://github.com/antoniosarosi/dotfiles
-
-
 from libqtile import hook
 
 from settings.keys import mod, keys
@@ -24,13 +16,23 @@ import subprocess
 def autostart():
     subprocess.call([path.join(qtile_path, 'autostart.sh')])
 
+@hook.subscribe.client_new
+def java(win):
+    try:
+        if 'sun-awt-X11-XFramePeer' in win.window.get_wm_class():
+            win.java = True
+        else:
+            win.java = False
+    except:
+        win.java = False
 
 main = None
 dgroups_key_binder = None
-dgroups_app_rules = []
+#dgroups_app_rules = []
 follow_mouse_focus = True
 bring_front_click = False
 cursor_warp = True
 auto_fullscreen = True
 focus_on_window_activation = 'urgent'
 wmname = 'LG3D'
+#wmname = 'Qtile'

@@ -1,35 +1,29 @@
-# Antonio Sarosi
-# https://youtube.com/c/antoniosarosi
-# https://github.com/antoniosarosi/dotfiles
+# Sepia color palette
+colors = {
+    'background': '#3b2f2f',
+    'foreground': '#f5e9da',
+    'selection':  '#5c4a3b',
+    'comment':    '#a89078',
+    'red':        '#c65f5f',
+    'orange':     '#d79b62',
+    'yellow':     '#eecb8b',
+    'green':      '#9ca97c',
+    'green2':     '#9bc69b',
+    'purple':     '#b18fce',
+    'cyan':       '#8fb4b4',
+    'pink':       '#e6a8d7',
 
-# Theming for Qtile
-
-from os import path
-import subprocess
-import json
-
-from .path import qtile_path
-
-
-def load_theme():
-    theme = "dark-grey"
-
-    config = path.join(qtile_path, "config.json")
-    if path.isfile(config):
-        with open(config) as f:
-            theme = json.load(f)["theme"]
-    else:
-        with open(config, "w") as f:
-            f.write(f'{{"theme": "{theme}"}}\n')
-
-
-    theme_file = path.join(qtile_path, "themes", f'{theme}.json')
-    if not path.isfile(theme_file):
-        raise Exception(f'"{theme_file}" does not exist')
-
-    with open(path.join(theme_file)) as f:
-        return json.load(f)
-
-
-if __name__ == "settings.theme":
-    colors = load_theme()
+    # custom roles
+    'dark':       '#2e2520',
+    'light':      '#f5e9da',
+    'text':       '#f5e9da',
+    'focus':      '#b18fce',
+    'active':     '#9ca97c',
+    'inactive':   '#a89078',
+    'urgent':     '#c65f5f',
+    'grey':       '#5c4a3b',
+    'color1':     '#e6a8d7',
+    'color2':     '#8fb4b4',
+    'color3':     '#eecb8b',
+    'color4':     '#b18fce',
+}
